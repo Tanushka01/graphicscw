@@ -1,0 +1,15 @@
+{
+  "created_at": "2023-07-18T15:03:56.169859",
+  "version": "0.1",
+  "mtllibs": [
+    "10449_Rectangular_Box_Hedge_v1_iterations-2.mtl"
+  ],
+  "vertex_buffers": [
+    {
+      "material": "10449_Rectangular_Box_Hedge_v1",
+      "vertex_format": "T2F_N3F_V3F",
+      "byte_offset": 0,
+      "byte_length": 7127040
+    }
+  ]
+}
