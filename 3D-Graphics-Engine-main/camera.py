@@ -9,7 +9,7 @@ SENSITIVITY = 0.04
 
 
 class Camera:
-    def __init__(self, app, position=(0, 8, 20), yaw=-90, pitch=-10):
+    def __init__(self, app, position=(0, 6, 20), yaw=-90, pitch=0):
         self.app = app
         self.aspect_ratio = app.WIN_SIZE[0] / app.WIN_SIZE[1]
         self.position = glm.vec3(position)
@@ -20,10 +20,10 @@ class Camera:
         self.pitch = pitch
         
         # view matrix
-        self.m_view = self.get_view_matrix()
+        self.view_matrix = self.get_view_matrix()
         
         # projection matrix
-        self.m_proj = self.get_projection_matrix()
+        self.proj_matrix = self.get_projection_matrix()
 
     def update_camera_vectors(self):
         yaw, pitch = glm.radians(self.yaw), glm.radians(self.pitch)
@@ -52,19 +52,19 @@ class Camera:
             self.position += self.up * velocity
         if keys[pg.K_e]:
             self.position -= self.up * velocity
-        if keys[pg.K_o]:
+        if keys[pg.K_j]:
             self.yaw -= 10 * velocity
-        if keys[pg.K_p]:
-            self.yaw += 10* velocity
         if keys[pg.K_l]:
-            self.pitch -= 10 * velocity
+            self.yaw += 10* velocity
         if keys[pg.K_k]:
+            self.pitch -= 10 * velocity
+        if keys[pg.K_i]:
             self.pitch += 10 * velocity
             
     def update(self):
         self.move()
         self.update_camera_vectors()
-        self.m_view = self.get_view_matrix()
+        self.view_matrix = self.get_view_matrix()
 
     def get_view_matrix(self):
         return glm.lookAt(self.position, self.position + self.forward, self.up)

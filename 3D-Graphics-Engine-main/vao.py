@@ -1,74 +1,37 @@
 from vbo import VBO
-from shader_program import ShaderProgram
-
 
 class VAO:
     def __init__(self, context):
         self.context = context
         self.vbo = VBO(context)
-        self.program = ShaderProgram(context)
+        self.program = Shaders(context)
         self.vaos = {}
-
-
         
-        self.vaos['water'] = self.get_vao(
-            program=self.program.programs['water'],
-            vbo = self.vbo.vbos['water'])
         
-        self.vaos['shadow_water'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo = self.vbo.vbos['water'])
-        
-        self.vaos['basen'] = self.get_vao(
-            program=self.program.programs['default'],
-            vbo = self.vbo.vbos['basen'])
-        
-        self.vaos['shadow_basen'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo = self.vbo.vbos['basen'])
-        
-        self.vaos['shadow_water'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo = self.vbo.vbos['water'])
-        
-        # ground vao
-        self.vaos['ground'] = self.get_vao(
-            program=self.program.programs['default'],
-            vbo = self.vbo.vbos['ground'])
+        def model_vao(model_name, shader_pro='main_shader'):    
+            if shader_pro == 'skybox':
+                # advanced_skybox vao
+                self.vaos['skybox'] = self.get_vao(program=self.program.programs['skybox'],
+                                                            vbo=self.vbo.vbos['skybox'])
+                
+                
+            else:
+                self.vaos[model_name] = self.get_vao(program=self.program.programs[shader_pro],
+                                                     vbo = self.vbo.vbos[model_name])
+            
+                self.vaos['shadow_' + model_name] = self.get_vao(program=self.program.programs['shadow_map'],
+                                                                 vbo = self.vbo.vbos[model_name])
 
-        # shadow ground vao
-        self.vaos['shadow_ground'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo = self.vbo.vbos['ground'])
+        model_vao('basen')
+        model_vao('ground')
+        model_vao('tree')
+        model_vao('water', 'water')
 
-        # cat vao
-        self.vaos['cat'] = self.get_vao(
-            program=self.program.programs['default'],
-            vbo=self.vbo.vbos['cat'])
+        model_vao('skybox', 'skybox')
+        model_vao('monkey')
+        model_vao('fish')
+        model_vao('rock')
         
-        self.vaos['tree'] = self.get_vao(
-            program=self.program.programs['default'],
-            vbo=self.vbo.vbos['tree'])
-
-        # shadow cat vao
-        self.vaos['shadow_cat'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo=self.vbo.vbos['cat'])
-        
-        self.vaos['shadow_tree'] = self.get_vao(
-            program=self.program.programs['shadow_map'],
-            vbo=self.vbo.vbos['tree'])
-
-        # skybox vao
-        self.vaos['skybox'] = self.get_vao(
-            program=self.program.programs['skybox'],
-            vbo=self.vbo.vbos['skybox'])
-
-        # advanced_skybox vao
-        self.vaos['advanced_skybox'] = self.get_vao(
-            program=self.program.programs['advanced_skybox'],
-            vbo=self.vbo.vbos['advanced_skybox'])
-
     def get_vao(self, program, vbo):
         vao = self.context.vertex_array(program, [(vbo.vbo, vbo.format, *vbo.attribs)], skip_errors=True)
         return vao
@@ -76,3 +39,27 @@ class VAO:
     def destroy(self):
         self.vbo.destroy()
         self.program.destroy()
+        
+        
+             
+class Shaders:
+    def __init__(self, context):
+        self.context = context
+        self.programs = {}
+        self.programs['main_shader'] = self.get_program('main_shader')
+        self.programs['skybox'] = self.get_program('skybox')
+        self.programs['shadow_map'] = self.get_program('shadow_map')
+        self.programs['water'] = self.get_program('water')
+
+    def get_program(self, shader_program_name):
+        with open(f'shaders/{shader_program_name}.vert') as file:
+            vertex_shader = file.read()
+
+        with open(f'shaders/{shader_program_name}.frag') as file:
+            fragment_shader = file.read()
+
+        program = self.context.program(vertex_shader=vertex_shader, fragment_shader=fragment_shader)
+        return program
+
+    def destroy(self):
+        [program.release() for program in self.programs.values()]
